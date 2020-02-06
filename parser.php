@@ -77,32 +77,82 @@ for ($i=1; $i < 4; $i++) {
 
       foreach ($categories as $key => $category) {
         if((trim($category->name)) == trim($sex)) {
-          // echo 'zhoda parenta ';
-          $parentID = trim($category->term_id);
+          $parentID = $category->term_id;
+          echo '<br>zhoda parenta '.  $category->name .'id '. $category->term_id;
         }
-        if((trim($category->name)) == trim($brand)) {
-          $subCat = trim($brand);
+
+        if(((trim($category->name)) == trim($brand) . "-D")) {
+          // echo 'zhoda znacky '.  trim($brand);
+          if(trim($sex) == 'dámské') {
+            $brand = trim($brand) . "-D";
+            echo '<br>dámské '.  $brand;
+            $subCat = $category->term_id;
+            break;
+          }
+        }
+
+        if((trim($category->name)) == trim($brand) . "-M") {
+          // echo 'zhoda znacky '.  trim($brand);
+          if(trim($sex) == 'pánské') {
+
+            $brand = trim($brand) . "-M";
+            echo '<br>panské '.  $brand;
+            $subCat = $category->term_id;
+            break;
+
+          }
         }
       }
+
 
       // if parrent doesnt exist
       if($parentID == '') {
         $parentID = wp_insert_term( trim($sex), 'category', [ ] );
-        $parentID = $parentID['term_id'];
+        if( is_array($parentID)) {
+          $parentID = $parentID['term_id'];
+        } else {
+          $parentID = $parentID->term_id;
+        }
+        echo '<br>'. 'if not exist pid ' . $parentID;
       }
 
       // if subcat doesnt exist
       if($subCat == '') {
-        wp_insert_term( trim($brand), 'category', [
+        if(trim($sex) == 'dámské') {
+
+          $brand = trim($brand) . "-D";
+          // echo 'dámské '.  $brand;
+        } else {
+          $brand = trim($brand) . "-M";
+          // echo 'panské '.  $brand;
+
+        }
+
+        $subCat = wp_insert_term( $brand, 'category', [
           // 'post_type' => 'parfemy',
           'alias_of'    => '',
           'description' => '',
           'parent' => $parentID,
           ]
         );
+
+        if( is_array($subCat)) {
+          $subCat = $subCat['term_id'];
+        } else {
+          $subCat = $subCat->term_id;
+        }
+
+        echo '<br>$brand1 '.  $brand;
+        echo '<br>$parentID1 '.  $parentID;
+        var_dump($subCat);
+
       }
 
-      wp_set_object_terms($post_id, $brand, 'category');
+
+      $settingCat = wp_set_object_terms($post_id, $subCat, 'category');
+      echo '<br>$post_id '.  $post_id . '$subCat ' .$subCat->term_id;
+
+      var_dump($settingCat);
 
     } else {
       // echo '<br> chybny ';
